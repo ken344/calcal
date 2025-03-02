@@ -2,7 +2,10 @@ package data
 
 import (
 	"encoding/csv"
+	"fmt"
 	"os"
+	"path/filepath"
+	"runtime"
 	"strconv"
 )
 
@@ -13,14 +16,41 @@ type Nutrient struct {
 	Carbohydrate float64
 }
 
+// CSVファイルのパス(DB相当データ)
+const dataFilePath = "./meals.csv"
+
+// CSVファイルのパスを取得
+func getDataFilePath(csvFilePath string) (string, error) {
+	// 実行中のファイルのパスを取得
+	_, filename, _, ok := runtime.Caller(0)
+	if !ok {
+		return "", fmt.Errorf("failed to get current file path")
+	}
+
+	// 実行中のファイルのディレクトリを取得
+	mainDir := filepath.Dir(filename)
+
+	// CSVファイルのパスを生成して返す
+	return filepath.Join(mainDir, csvFilePath), nil
+}
+
 // CSVファイルを読み込み、食品名をキーにしたマップを返す
-func LoadCSV(filePath string) (map[string]Nutrient, error) {
+func LoadCSV() (map[string]Nutrient, error) {
+
+	// CSVファイルのパスを取得
+	filePath, err := getDataFilePath(dataFilePath)
+	if err != nil {
+		return nil, err
+	}
+
+	// CSVファイルを開く
 	file, err := os.Open(filePath)
 	if err != nil {
 		return nil, err
 	}
 	defer file.Close()
 
+	// CSVファイルを読み込む
 	reader := csv.NewReader(file)
 	records, err := reader.ReadAll()
 	if err != nil {

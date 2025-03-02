@@ -11,8 +11,6 @@ import (
 	"github.com/olekukonko/tablewriter"
 )
 
-const dataFilePath = "../../data/meals.csv"
-
 func main() {
 
 	// コマンドライン引数の取得
@@ -31,7 +29,7 @@ func main() {
 	// fmt.Printf("meals: %v %T\n", meals, meals)
 
 	// CSVファイルの読み込み(map型に変換)
-	mealDB, err := data.LoadCSV(dataFilePath)
+	mealDB, err := data.LoadCSV()
 	if err != nil {
 		fmt.Println("CSVファイルの読み込みに失敗しました:", err)
 		os.Exit(1)
@@ -44,7 +42,7 @@ func main() {
 	// 食品のデータを送受信するチャネルを作成
 	mealChan := make(chan nutrition.MealData, len(meals))
 
-	// sync.WaitGroupを作成ß
+	// sync.WaitGroupを作成
 	wg := sync.WaitGroup{}
 	wg.Add(len(meals))
 
@@ -58,7 +56,7 @@ func main() {
 			// 食品名をキーにして栄養素を取得
 			nutrient, exists := mealDB[meal]
 			if !exists {
-				// fmt.Printf("食品名「%s」は存在しません\n", meal)
+				// 食品名がDBに存在しない場合はinfoにコメントを追加
 				mealChan <- nutrition.MealData{MealName: meal, Info: "DBに存在しません"}
 				return
 			}
@@ -91,8 +89,11 @@ func main() {
 	// fmt.Printf("sumMealData: %v %T\n", sumMealData, sumMealData)
 
 	// 食品のデータを表示
+	// 表の作成
 	meal_table := tablewriter.NewWriter(os.Stdout)
+	// ヘッダーの設定
 	meal_table.SetHeader([]string{"食品名", "蛋白質\n(g)", "蛋白質\n(kcal)", "脂質\n(g)", "脂質\n(kcal)", "炭水化物\n(g)", "炭水化物\n(kcal)", "合計カロリー\n(kcal)", "info"})
+	// データの追加
 	for _, meal := range mealDatas {
 		meal_table.Append([]string{
 			meal.MealName,
@@ -107,7 +108,7 @@ func main() {
 		})
 	}
 
-	// 食品と合計値の間に空行を追加
+	// 食品と合計値の間に空行を追加（罫線の代替）
 	meal_table.Append([]string{"", "", "", "", "", "", "", "", ""})
 
 	// 合計行を追加
