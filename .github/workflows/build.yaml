@@ -13,6 +13,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # リリースのためにファイルを書き込むための権限
     # プルリクエストがマージされた場合または、タグが付いた場合のみ実行
     if: |
       (github.event_name == 'pull_request' && github.event.pull_request.merged == true) ||
