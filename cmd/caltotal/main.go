@@ -8,20 +8,10 @@ import (
 
 	"github.com/ken344/calcal/pkg/models/data"
 	"github.com/ken344/calcal/pkg/models/nutrition"
+	"github.com/olekukonko/tablewriter"
 )
 
 const dataFilePath = "../../data/meals.csv"
-
-// // mealData構造体（食品の名前と栄養素を格納）
-// type mealData struct {
-// 	mealName           string
-// 	macronutrientsData nutrition.Macronutrients
-// 	info               string
-// }
-
-// type mealDatas struct {
-// 	mealData []mealData
-// }
 
 func main() {
 
@@ -34,11 +24,11 @@ func main() {
 
 	// 引数を食品名として取得
 	mealsInput := os.Args[1]
-	fmt.Printf("mealsInput: %v %T\n", mealsInput, mealsInput)
+	// fmt.Printf("mealsInput: %v %T\n", mealsInput, mealsInput)
 
 	// 引数をカンマ区切りで分割し、スライスに格納
 	meals := strings.Split(mealsInput, ",")
-	fmt.Printf("meals: %v %T\n", meals, meals)
+	// fmt.Printf("meals: %v %T\n", meals, meals)
 
 	// CSVファイルの読み込み(map型に変換)
 	mealDB, err := data.LoadCSV(dataFilePath)
@@ -46,11 +36,11 @@ func main() {
 		fmt.Println("CSVファイルの読み込みに失敗しました:", err)
 		os.Exit(1)
 	}
-	fmt.Printf("mealDB: %v %T\n", mealDB, mealDB)
+	// fmt.Printf("mealDB: %v %T\n", mealDB, mealDB)
 
 	// 食品のデータを集約するスライスを作成
-	// mealDatas := []nutrition.mealDatas{}
 	var mealDatas []nutrition.MealData
+
 	// 食品のデータを送受信するチャネルを作成
 	mealChan := make(chan nutrition.MealData, len(meals))
 
@@ -62,29 +52,23 @@ func main() {
 	for _, meal := range meals {
 		go func(meal string) {
 			defer wg.Done()
-			fmt.Printf("meal: %v %T\n", meal, meal)
+
+			// fmt.Printf("meal: %v %T\n", meal, meal)
+
 			// 食品名をキーにして栄養素を取得
 			nutrient, exists := mealDB[meal]
 			if !exists {
-				fmt.Printf("食品名「%s」は存在しません\n", meal)
+				// fmt.Printf("食品名「%s」は存在しません\n", meal)
 				mealChan <- nutrition.MealData{MealName: meal, Info: "DBに存在しません"}
 				return
 			}
-			// 栄養素の表示
-			// fmt.Printf("食品名: %s\n", meal)
-			// fmt.Printf("蛋白質: %.1fg\n", nutrient.Protein)
-			// fmt.Printf("脂質: %.1fg\n", nutrient.Fat)
-			// fmt.Printf("炭水化物: %.1fg\n", nutrient.Carbohydrate)
-			// fmt.Print("--------------------\n")
 
-			// 栄養素の合計とカロリーを計算
+			// 栄養素の構造体を生成
 			mealTotal := nutrition.NewMacronutrients(nutrient.Protein, nutrient.Fat, nutrient.Carbohydrate)
-
-			fmt.Printf("蛋白質: %.1fg (%.0fkcal)\n", mealTotal.Protein.Amount, mealTotal.Protein.Calories)
-			fmt.Printf("脂質: %.1fg (%.0fkcal)\n", mealTotal.Fat.Amount, mealTotal.Fat.Calories)
-			fmt.Printf("炭水化物: %.1fg (%.0fkcal)\n", mealTotal.Carbohydrate.Amount, mealTotal.Carbohydrate.Calories)
-			fmt.Printf("合計カロリー: %.0fkcal\n", mealTotal.TotalCalories)
-			fmt.Print("--------------------\n")
+			// 栄養素ごとのカロリーの計算
+			mealTotal.CalorieCalculation()
+			// 合計カロリーの計算
+			mealTotal.TotalCaloriesCalculation()
 
 			// 構造体をチャネルに送信
 			mealChan <- nutrition.MealData{MealName: meal, MacronutrientsData: mealTotal, Info: "-"}
@@ -102,17 +86,44 @@ func main() {
 		mealDatas = append(mealDatas, meal)
 	}
 
-	fmt.Printf("mealDatas: %v %T\n", mealDatas, mealDatas)
-
 	// 食品のデータを集約
 	sumMealData := nutrition.MealAggregation(mealDatas)
-	fmt.Printf("sumMealData: %v %T\n", sumMealData, sumMealData)
+	// fmt.Printf("sumMealData: %v %T\n", sumMealData, sumMealData)
 
-	// 集約したデータを表示
-	fmt.Printf("蛋白質: %.1fg (%.0fkcal)\n", sumMealData.Protein.Amount, sumMealData.Protein.Calories)
-	fmt.Printf("脂質: %.1fg (%.0fkcal)\n", sumMealData.Fat.Amount, sumMealData.Fat.Calories)
-	fmt.Printf("炭水化物: %.1fg (%.0fkcal)\n", sumMealData.Carbohydrate.Amount, sumMealData.Carbohydrate.Calories)
-	fmt.Printf("合計カロリー: %.0fkcal\n", sumMealData.TotalCalories)
-	fmt.Print("--------------------\n")
+	// 食品のデータを表示
+	meal_table := tablewriter.NewWriter(os.Stdout)
+	meal_table.SetHeader([]string{"食品名", "蛋白質\n(g)", "蛋白質\n(kcal)", "脂質\n(g)", "脂質\n(kcal)", "炭水化物\n(g)", "炭水化物\n(kcal)", "合計カロリー\n(kcal)", "info"})
+	for _, meal := range mealDatas {
+		meal_table.Append([]string{
+			meal.MealName,
+			fmt.Sprintf("%.1f", meal.MacronutrientsData.Protein.Amount),
+			fmt.Sprintf("%.0f", meal.MacronutrientsData.Protein.Calories),
+			fmt.Sprintf("%.1f", meal.MacronutrientsData.Fat.Amount),
+			fmt.Sprintf("%.0f", meal.MacronutrientsData.Fat.Calories),
+			fmt.Sprintf("%.1f", meal.MacronutrientsData.Carbohydrate.Amount),
+			fmt.Sprintf("%.0f", meal.MacronutrientsData.Carbohydrate.Calories),
+			fmt.Sprintf("%.0f", meal.MacronutrientsData.TotalCalories),
+			meal.Info,
+		})
+	}
+
+	// 食品と合計値の間に空行を追加
+	meal_table.Append([]string{"", "", "", "", "", "", "", "", ""})
+
+	// 合計行を追加
+	meal_table.Append([]string{
+		"総計",
+		fmt.Sprintf("%.1f", sumMealData.Protein.Amount),
+		fmt.Sprintf("%.0f", sumMealData.Protein.Calories),
+		fmt.Sprintf("%.1f", sumMealData.Fat.Amount),
+		fmt.Sprintf("%.0f", sumMealData.Fat.Calories),
+		fmt.Sprintf("%.1f", sumMealData.Carbohydrate.Amount),
+		fmt.Sprintf("%.0f", sumMealData.Carbohydrate.Calories),
+		fmt.Sprintf("%.0f", sumMealData.TotalCalories),
+		"-",
+	})
+
+	// 表を表示
+	meal_table.Render()
 
 }

@@ -13,12 +13,11 @@ func MealAggregation(MealDatas []MealData) Macronutrients {
 		sumMealData.Protein.Amount += n.MacronutrientsData.Protein.Amount
 		sumMealData.Fat.Amount += n.MacronutrientsData.Fat.Amount
 		sumMealData.Carbohydrate.Amount += n.MacronutrientsData.Carbohydrate.Amount
+		sumMealData.Protein.Calories += n.MacronutrientsData.Protein.Calories
+		sumMealData.Fat.Calories += n.MacronutrientsData.Fat.Calories
+		sumMealData.Carbohydrate.Calories += n.MacronutrientsData.Carbohydrate.Calories
+		sumMealData.TotalCalories += n.MacronutrientsData.TotalCalories
 	}
-
-	// カロリーの計算
-	sumMealData.CalorieCalculation()
-	// 合計カロリーの計算
-	sumMealData.TotalCaloriesCalculation()
 
 	return sumMealData
 }
