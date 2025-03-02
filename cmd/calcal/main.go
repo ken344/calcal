@@ -37,7 +37,7 @@ func main() {
 
 	// 結果を出力
 	nutritionTable := tablewriter.NewWriter(os.Stdout)
-	nutritionTable.SetHeader([]string{"栄養素", "量 (g)", "カロリー (kcal)"})
+	nutritionTable.SetHeader([]string{"栄養素", "量\n (g)", "カロリー \n(kcal)"})
 	nutritionTable.Append([]string{"蛋白質", fmt.Sprintf("%.1f", meal.Protein.Amount), fmt.Sprintf("%.0f", meal.Protein.Calories)})
 	nutritionTable.Append([]string{"脂質", fmt.Sprintf("%.1f", meal.Fat.Amount), fmt.Sprintf("%.0f", meal.Fat.Calories)})
 	nutritionTable.Append([]string{"炭水化物", fmt.Sprintf("%.1f", meal.Carbohydrate.Amount), fmt.Sprintf("%.0f", meal.Carbohydrate.Calories)})
