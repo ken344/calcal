@@ -59,11 +59,3 @@ jobs:
             bin/*-windows-amd64.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: GitHub Releases に mac-universal をアップロード
-        if: ${{ hashFiles('bin/*-mac-universal') != '' }}
-        uses: softprops/action-gh-release@v2
-        with:
-          files: bin/*-mac-universal
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
