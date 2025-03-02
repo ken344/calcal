@@ -1,12 +1,10 @@
 package data
 
 import (
+	_ "embed"
 	"encoding/csv"
-	"fmt"
-	"os"
-	"path/filepath"
-	"runtime"
 	"strconv"
+	"strings"
 )
 
 // Nutrient 構造体（栄養素データ）
@@ -16,42 +14,21 @@ type Nutrient struct {
 	Carbohydrate float64
 }
 
-// CSVファイルのパス(DB相当データ)
-const dataFilePath = "./meals.csv"
-
-// CSVファイルのパスを取得
-func getDataFilePath(csvFilePath string) (string, error) {
-	// 実行中のファイルのパスを取得
-	_, filename, _, ok := runtime.Caller(0)
-	if !ok {
-		return "", fmt.Errorf("failed to get current file path")
-	}
-
-	// 実行中のファイルのディレクトリを取得
-	mainDir := filepath.Dir(filename)
-
-	// CSVファイルのパスを生成して返す
-	return filepath.Join(mainDir, csvFilePath), nil
-}
+// 以下のコメントは、embedディレクティブを使って埋め込まれたCSVデータを取得するためのコードです。
+// meals.csvファイルを埋め込む設定なので、変更はしないようにしてください。
+//
+//go:embed meals.csv
+var mealsCSV string // CSVデータが文字列として埋め込まれる
 
 // CSVファイルを読み込み、食品名をキーにしたマップを返す
 func LoadCSV() (map[string]Nutrient, error) {
 
-	// CSVファイルのパスを取得
-	filePath, err := getDataFilePath(dataFilePath)
-	if err != nil {
-		return nil, err
-	}
+	// // CSVデータを表示（enbedデバッグ用）
+	// fmt.Println("Embedded CSV Data:")
+	// fmt.Println(mealsCSV)
 
-	// CSVファイルを開く
-	file, err := os.Open(filePath)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
-	// CSVファイルを読み込む
-	reader := csv.NewReader(file)
+	// CSVデータをパース
+	reader := csv.NewReader(strings.NewReader(mealsCSV))
 	records, err := reader.ReadAll()
 	if err != nil {
 		return nil, err
