@@ -19,35 +19,36 @@ type Nutrient struct {
 
 // 主要栄養素をまとめた構造体
 type Macronutrients struct {
-	Protein      Nutrient
-	Fat          Nutrient
-	Carbohydrate Nutrient
+	Protein       Nutrient
+	Fat           Nutrient
+	Carbohydrate  Nutrient
+	TotalCalories float64
 }
 
-// 栄養素の量を受け取り、自動的にカロリーを計算する関数（コンストラクタ相当）
+// 栄養素の量を受け取り、構造体を生成する（コンストラクタ相当）
 func NewMacronutrients(protein, fat, carbohydrate float64) Macronutrients {
 	// 小数点第1位で四捨五入
-	protein = utils.Rounding(protein, 1)
-	fat = utils.Rounding(fat, 1)
-	carbohydrate = utils.Rounding(carbohydrate, 1)
-
 	return Macronutrients{
 		Protein: Nutrient{ // 蛋白質のデータ
-			Amount:   protein,
-			Calories: utils.Rounding(protein*ProteinCaloriesPerGram, 0),
+			Amount: utils.Rounding(protein, 1),
 		},
 		Fat: Nutrient{ // 脂質のデータ
-			Amount:   fat,
-			Calories: utils.Rounding(fat*FatCaloriesPerGram, 0),
+			Amount: utils.Rounding(fat, 1),
 		},
 		Carbohydrate: Nutrient{ // 炭水化物のデータ
-			Amount:   carbohydrate,
-			Calories: utils.Rounding(carbohydrate*CarbohydrateCaloriesPerGram, 0),
+			Amount: utils.Rounding(carbohydrate, 1),
 		},
 	}
 }
 
+// 各栄養素のカロリーを計算する
+func (m *Macronutrients) CalorieCalculation() {
+	m.Protein.Calories = utils.Rounding(m.Protein.Amount*ProteinCaloriesPerGram, 0)
+	m.Fat.Calories = utils.Rounding(m.Fat.Amount*FatCaloriesPerGram, 0)
+	m.Carbohydrate.Calories = utils.Rounding(m.Carbohydrate.Amount*CarbohydrateCaloriesPerGram, 0)
+}
+
 // 栄養素のカロリーの合計を計算する
-func (m Macronutrients) TotalCalories() float64 {
-	return utils.Rounding(m.Protein.Calories+m.Fat.Calories+m.Carbohydrate.Calories, 0)
+func (m *Macronutrients) TotalCaloriesCalculation() {
+	m.TotalCalories = utils.Rounding(m.Protein.Calories+m.Fat.Calories+m.Carbohydrate.Calories, 0)
 }
