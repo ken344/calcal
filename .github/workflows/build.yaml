@@ -45,9 +45,6 @@ jobs:
             GOOS=darwin GOARCH=arm64 go build -o bin/${app}-mac-arm64 cmd/$app/main.go
             GOOS=windows GOARCH=amd64 go build -o bin/${app}-windows.exe cmd/$app/main.go
 
-            if [[ -f "bin/${app}-mac-amd64" && -f "bin/${app}-mac-arm64" ]]; then
-              lipo -create -output bin/${app}-mac-universal bin/${app}-mac-amd64 bin/${app}-mac-arm64
-            fi
           done
 
       - name: GitHub Releases にアップロード
