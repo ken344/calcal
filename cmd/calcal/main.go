@@ -29,10 +29,10 @@ func main() {
 	// 構造体の生成
 	meal := nutrition.NewMacronutrients(*p, *f, *c)
 
-	// 栄養素ごとのカロリーの計算
+	// 栄養素ごとのカロリーの計算を行う
 	meal.CalorieCalculation()
 
-	// 合計カロリーの計算
+	// 合計カロリーの計算を行う
 	meal.TotalCaloriesCalculation()
 
 	// 結果を出力

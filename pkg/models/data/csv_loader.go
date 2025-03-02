@@ -9,9 +9,9 @@ import (
 
 // Nutrient 構造体（栄養素データ）
 type Nutrient struct {
-	Protein      float64
-	Fat          float64
-	Carbohydrate float64
+	Protein      float64 // 蛋白質
+	Fat          float64 // 脂質
+	Carbohydrate float64 // 炭水化物
 }
 
 // 以下のコメントは、embedディレクティブを使って埋め込まれたCSVデータを取得するためのコードです。

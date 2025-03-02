@@ -19,10 +19,10 @@ type Nutrient struct {
 
 // 主要栄養素をまとめた構造体
 type Macronutrients struct {
-	Protein       Nutrient
-	Fat           Nutrient
-	Carbohydrate  Nutrient
-	TotalCalories float64
+	Protein       Nutrient // 蛋白質
+	Fat           Nutrient // 脂質
+	Carbohydrate  Nutrient // 炭水化物
+	TotalCalories float64  // 合計カロリー
 }
 
 // 栄養素の量を受け取り、構造体を生成する（コンストラクタ相当）

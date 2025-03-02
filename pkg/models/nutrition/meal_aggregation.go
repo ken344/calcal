@@ -2,9 +2,9 @@ package nutrition
 
 // mealData構造体（食品の名前と栄養素を格納）
 type MealData struct {
-	MealName           string
-	MacronutrientsData Macronutrients
-	Info               string
+	MealName           string         // 食品名
+	MacronutrientsData Macronutrients // 栄養素データ
+	Info               string         // 備考
 }
 
 func MealAggregation(MealDatas []MealData) Macronutrients {
